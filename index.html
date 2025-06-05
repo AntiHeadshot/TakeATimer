@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timer App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #timer {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        #qr-code {
+            display: none;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="timer">00:00</div>
+    <img id="qr-code" src="" alt="QR Code">
+    <button onclick="toggleFullScreen()">Toggle FullScreen</button>
+    <button onclick="startTimer()">Start Timer</button>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <script>
+        let timerInterval;
+        let timeLeft = 60; // Timer duration in seconds
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 60;
+            document.getElementById('qr-code').style.display = 'block';
+            QRCode.toDataURL('Timer is running', function (err, url) {
+                document.getElementById('qr-code').src = url;
+            });
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('qr-code').style.display = 'none';
+                sendNotification();
+            } else {
+                timeLeft--;
+                document.getElementById('timer').textContent = formatTime(timeLeft);
+            }
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        function sendNotification() {
+            if (Notification.permission === 'granted') {
+                new Notification('Timer', {
+                    body: 'The timer has ended!',
+                });
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        new Notification('Timer', {
+                            body: 'The timer has ended!',
+                        });
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (Notification.permission !== 'granted') {
+                Notification.requestPermission();
+            }
+        });
+    </script>
+</body>
+</html>
