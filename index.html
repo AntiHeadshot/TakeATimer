@@ -1,9 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <script type="module" src="script.js"></script>
     <title>Timer App</title>
     <style>
         body {
@@ -14,89 +16,101 @@
             justify-content: center;
             height: 100vh;
             margin: 0;
+            background-color: #121212;
+            /* Dark background */
+            color: #ffffff;
+            /* Light text */
         }
-        #timer {
-            font-size: 48px;
+
+        #progress-container {
+            position: relative;
+            width: 60vmin;
+            /* Scale with viewport width */
+            height: 60vmin;
+            /* Scale with viewport width */
             margin-bottom: 20px;
         }
+
+        #progress-container svg {
+            width: 100%;
+            /* Match container size */
+            height: 100%;
+            /* Match container size */
+        }
+
+        #timer,
+        #end {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 7vmin;
+            /* Scale font size with viewport width */
+            text-align: center;
+        }
+
+        #end {
+            top: 75%;
+        }
+
+        #timer {
+            font-size: 16vmin;
+        }
+
         #qr-code {
             display: none;
             margin-bottom: 20px;
         }
+
         button {
             padding: 10px 20px;
             font-size: 16px;
+            background-color: #333333;
+            /* Dark button background */
+            color: #ffffff;
+            /* Light button text */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #555555;
+            /* Slightly lighter button background on hover */
+        }
+
+        button#toggle-fullscreen {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
         }
     </style>
 </head>
+
 <body>
-    <div id="timer">00:00</div>
+    <div id="progress-container">
+        <svg viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="90" stroke="#444444" stroke-width="10" fill="none"></circle>
+            <circle id="progress-bar" cx="100" cy="100" r="88.5" stroke="#4caf50" stroke-width="13" fill="none"
+                stroke-linecap="round" stroke-dasharray="565" stroke-dashoffset="564"
+                style="transform: rotate(-90deg); transform-origin: center;">
+            </circle>
+        </svg>
+        <div id="timer">00:00</div>
+        <div id="end">00:00</div>
+    </div>
     <img id="qr-code" src="" alt="QR Code">
-    <button onclick="toggleFullScreen()">Toggle FullScreen</button>
-    <button onclick="startTimer()">Start Timer</button>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-    <script>
-        let timerInterval;
-        let timeLeft = 60; // Timer duration in seconds
-
-        function startTimer() {
-            clearInterval(timerInterval);
-            timeLeft = 60;
-            document.getElementById('qr-code').style.display = 'block';
-            QRCode.toDataURL('Timer is running', function (err, url) {
-                document.getElementById('qr-code').src = url;
-            });
-            timerInterval = setInterval(updateTimer, 1000);
-        }
-
-        function updateTimer() {
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                document.getElementById('qr-code').style.display = 'none';
-                sendNotification();
-            } else {
-                timeLeft--;
-                document.getElementById('timer').textContent = formatTime(timeLeft);
-            }
-        }
-
-        function formatTime(seconds) {
-            const minutes = Math.floor(seconds / 60);
-            const remainingSeconds = seconds % 60;
-            return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
-        }
-
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
-        }
-
-        function sendNotification() {
-            if (Notification.permission === 'granted') {
-                new Notification('Timer', {
-                    body: 'The timer has ended!',
-                });
-            } else if (Notification.permission !== 'denied') {
-                Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
-                        new Notification('Timer', {
-                            body: 'The timer has ended!',
-                        });
-                    }
-                });
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            if (Notification.permission !== 'granted') {
-                Notification.requestPermission();
-            }
-        });
-    </script>
+    <button id="toggle-fullscreen" onclick="toggleFullScreen()">Toggle FullScreen</button>
+    <div id="start-button">
+        <button onclick="startTimer(10)">10 Sec.</button>
+        <button onclick="startTimer(60)">1 Min.</button>
+        <button onclick="startTimer(180)">3 Min.</button>
+        <button onclick="startTimer(300)">5 Min.</button>
+        <button onclick="startTimer(600)">10 Min.</button>
+        <button onclick="startTimer(1800)">15 Min.</button>
+        <button onclick="startTimer(3600)">30 Min.</button>
+    </div>
+    <button id="stop-button" onclick="stopTimer()" style="display: none;">Stop Timer</button>
 </body>
+
 </html>
