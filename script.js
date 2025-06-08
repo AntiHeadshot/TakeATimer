@@ -1,9 +1,11 @@
+'use strict';
+
 let timerInterval;
 let duration = 300; // Default duration in seconds
-let timeLeft = 300; // Default timer duration in seconds
 let endDate;
+let isTimerRunning = false;
 
-let stopText, startButton, stopButton, timerElement, qrCodeElement, progressBarElement;
+let stopText, startButton, stopButton, timerElement, qrCodeElement, progressBarElement, endElement;
 
 function initializeElements() {
     stopText = document.getElementById('stop-button');
@@ -12,11 +14,58 @@ function initializeElements() {
     timerElement = document.getElementById('timer');
     qrCodeElement = document.getElementById('qr-code');
     progressBarElement = document.getElementById('progress-bar');
+    endElement = document.getElementById('end');
+
+    updateTimeButtons();
 }
 
-function updateUrlParams(endDate, duration) {
+let lastTime = -1;
+function updateTimeButtons() {
+
+    let time = Math.floor((Math.floor(Date.now() / 1000 / 60) % 60) / 5) + 1;
+
+    if (time == lastTime)
+        return;
+    lastTime = time;
+
+    document.getElementById('start-buttons-up-to').style.setProperty('--currentDeg', (time * 30) + 'deg');
+
+    const now = Date.now();
+
+    document.querySelectorAll('[id^="up-to-"]').forEach(el => {
+        const match = el.id.match(/(?<=^up-to-)\d+(?=$)/);
+        const targetMinute = parseInt(match[0], 10) + time * 5;
+
+        // Find the next occurrence of this minute value
+        let target = new Date(now);
+        target.setSeconds(0, 0);
+        if (target.getMinutes() >= targetMinute) {
+            target.setHours(target.getHours() + 1);
+        }
+        target.setMinutes(targetMinute);
+
+        el.dataset.targetTime = target.getTime();
+        if (match[0] == "0")
+            endDate = el.dataset.targetTime / 1000;
+        duration = 5 * 60;
+
+        el.removeEventListener('click', el._upToClickHandler);
+        el._upToClickHandler = () => {
+            startTimer(null, Number(el.dataset.targetTime));
+        };
+        el.addEventListener('click', el._upToClickHandler);
+
+        el.textContent = target.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: false,
+        });
+    });
+}
+
+function updateUrlParams() {
     const targetUrlParams = new URLSearchParams(window.location.search);
-    targetUrlParams.set('endtime', endDate.getTime());
+    targetUrlParams.set('endtime', endDate);
     targetUrlParams.set('duration', duration);
 
     const targetUrl = new URL(window.location.href);
@@ -29,51 +78,71 @@ function updateUrlParams(endDate, duration) {
 function generateQRCode(url) {
     QRCode.toDataURL(url, (err, qrUrl) => {
         qrCodeElement.src = qrUrl;
-        qrCodeElement.style.display = 'block';
     });
 }
 
-function toggleButtonVisibility(isTimerRunning) {
-    startButton.style.display = isTimerRunning ? 'none' : 'block';
-    stopButton.style.display = isTimerRunning ? 'block' : 'none';
+function setTimerState(value) {
+    isTimerRunning = value;
+    document.body.classList.toggle('setup', !isTimerRunning);
 }
 
-function startTimer(durationInSeconds, targetEnd) {
-    clearInterval(timerInterval);
+window.startTimer = function startTimer(durationInSeconds, targetEnd) {
+    endDate = targetEnd ?? (Date.now() + durationInSeconds * 1000)
+    duration = durationInSeconds ?? (endDate - Date.now()) / 1000;
 
-    endDate = targetEnd ?? new Date(Date.now() + durationInSeconds * 1000);
-    timeLeft = (endDate.getTime() - Date.now()) / 1000;
-    duration = durationInSeconds ?? timeLeft;
+    console.log(`Starting timer for ${duration} seconds, ending at ${new Date(endDate).toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+    })}`);
+    console.log(`Target end time: ${targetEnd}`);
+    console.log(`endDate: ${endDate}`);
 
-    document.getElementById('end').textContent = endDate.toLocaleTimeString('en-US', {
+    endElement.textContent = new Date(endDate).toLocaleTimeString('en-US', {
         hour: 'numeric',
         minute: '2-digit',
         second: '2-digit',
         hour12: false,
     });
 
-    const targetUrl = updateUrlParams(endDate, duration);
+    const targetUrl = updateUrlParams();
     generateQRCode(targetUrl);
 
-    timerInterval = setInterval(updateTimer, 10);
-    toggleButtonVisibility(true);
-}
-window.startTimer = startTimer;
+    endDate = endDate / 1000;
 
-let lastTimeLeft = Number.MAX_SAFE_INTEGER;
+    setTimerState(true);
+};
+
+let lastCurrentTime = 0;
 function updateTimer() {
-    timeLeft = (endDate.getTime() - Date.now()) / 1000;
-
-    if (timeLeft <= 0) {
-        qrCodeElement.style.display = 'none';
+    let currentTime = Date.now() / 1000;
+    let plsUpdate = false;
+    if (currentTime - lastCurrentTime > 0.5) {
+        lastCurrentTime = currentTime;
+        plsUpdate = true;
     }
 
-    if (Math.abs(timeLeft - lastTimeLeft) > 0.5) {
-        lastTimeLeft = timeLeft;
-        timerElement.textContent = formatTime(timeLeft);
-    }
+    let timeLeft = endDate - currentTime;
 
-    progressBarElement.style.strokeDashoffset = Math.max(0, 565 - (timeLeft / duration) * 565);
+    if (isTimerRunning)
+        progressBarElement.style.strokeDashoffset = Math.max(0, 565 - (timeLeft / duration) * 565);
+    else
+        progressBarElement.style.strokeDashoffset = Math.max(0, (timeLeft / duration) * 565);
+
+    if (plsUpdate) {
+        if (isTimerRunning)
+            timerElement.textContent = formatTime(timeLeft);
+        else {
+            timerElement.textContent = new Date().toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: false,
+            });
+
+            updateTimeButtons();
+        }
+    }
 }
 
 function formatTime(seconds) {
@@ -84,15 +153,12 @@ function formatTime(seconds) {
     return `${isNegative ? '-' : ''}${minutes}:${String(remainingSeconds).padStart(2, '0')}`;
 }
 
-function stopTimer() {
-    clearInterval(timerInterval);
-    timerElement.textContent = 'stopped';
-    qrCodeElement.style.display = 'none';
-
-    window.history.replaceState(null, '', window.location.pathname); // Clear the URL parameters
-    toggleButtonVisibility(false);
-}
-window.stopTimer = stopTimer;
+window.stopTimer = function stopTimer() {
+    window.history.replaceState(null, '', window.location.pathname);
+    lastTime = -1;
+    updateTimeButtons();
+    setTimerState(false);
+};
 
 function toggleFullScreen() {
     if (!document.fullscreenElement) {
@@ -110,7 +176,7 @@ function parseUrlParameters() {
 
     if (endtime && duration) {
         const durationInSeconds = parseInt(duration, 10);
-        const end = new Date(parseInt(endtime, 10));
+        const end = parseInt(endtime, 10);
 
         if (!isNaN(durationInSeconds) && durationInSeconds > 0) {
             startTimer(durationInSeconds, end);
@@ -121,4 +187,6 @@ function parseUrlParameters() {
 document.addEventListener('DOMContentLoaded', () => {
     initializeElements();
     parseUrlParameters();
+
+    timerInterval = setInterval(updateTimer, 10);
 });

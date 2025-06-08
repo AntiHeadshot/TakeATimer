@@ -17,25 +17,20 @@
             height: 100vh;
             margin: 0;
             background-color: #121212;
-            /* Dark background */
             color: #ffffff;
-            /* Light text */
         }
 
         #progress-container {
-            position: relative;
+            position: absolute;
             width: 60vmin;
-            /* Scale with viewport width */
             height: 60vmin;
-            /* Scale with viewport width */
             margin-bottom: 20px;
+            pointer-events: none;
         }
 
         #progress-container svg {
             width: 100%;
-            /* Match container size */
             height: 100%;
-            /* Match container size */
         }
 
         #timer,
@@ -45,7 +40,6 @@
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: 7vmin;
-            /* Scale font size with viewport width */
             text-align: center;
         }
 
@@ -58,17 +52,21 @@
         }
 
         #qr-code {
-            display: none;
+            position: absolute;
+            bottom: 110px;
+            display: block;
             margin-bottom: 20px;
+        }
+
+        .setup #qr-code {
+            display: none;
         }
 
         button {
             padding: 10px 20px;
             font-size: 16px;
             background-color: #333333;
-            /* Dark button background */
             color: #ffffff;
-            /* Light button text */
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -76,7 +74,6 @@
 
         button:hover {
             background-color: #555555;
-            /* Slightly lighter button background on hover */
         }
 
         button#toggle-fullscreen {
@@ -84,15 +81,90 @@
             bottom: 10px;
             right: 10px;
         }
+
+        #start-buttons {
+            position: absolute;
+            bottom: 40px;
+        }
+
+        #start-buttons-up-to {
+            position: absolute;
+            width: 60vmin;
+            height: 60vmin;
+            margin-bottom: 20px;
+        }
+
+        #start-buttons-up-to button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(var(--currentDeg)) translate(0, 0) rotate(calc(-1 * var(--currentDeg)));
+            transition: transform 1s ease-in-out;
+            border-radius: 50%;
+            width: 8vmin;
+            height: 8vmin;
+            font-size: 2.5vmin;
+            padding: 0;
+        }
+
+        .setup #start-buttons-up-to button {
+            transform: translate(-50%, -50%) rotate(calc(var(--currentDeg) + var(--deg))) translate(0, -35vmin) rotate(calc(-1 * var(--currentDeg) - var(--deg)));
+        }
+
+        #start-buttons-up-to button {
+            --deg: calc((var(--i) - 1) * 30deg);
+        }
+
+        #stop-button {
+            display: block;
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+        }
+
+        .setup #stop-button {
+            display: none;
+        }
+
+        #progress-bar {
+            stroke-width: 13px;
+            transition: stroke-width 0.5s ease-in-out
+            ,r 0.5s ease-in-out
+            ,stroke 0.5s ease-in-out;
+        }
+
+        .setup #progress-bar {
+            stroke: gray;
+            stroke-width: 10px;
+            r: 90px;
+        } 
+        
+        .setup #end {
+            display: none;
+        }
     </style>
 </head>
 
-<body>
+<body class="setup">
+    <div id="start-buttons-up-to">
+        <button id="up-to-0" style="--i:1;">0</button>
+        <button id="up-to-5" style="--i:2;">5</button>
+        <button id="up-to-10" style="--i:3;">10</button>
+        <button id="up-to-15" style="--i:4;">15</button>
+        <button id="up-to-20" style="--i:5;">20</button>
+        <button id="up-to-25" style="--i:6;">25</button>
+        <button id="up-to-30" style="--i:7;">30</button>
+        <button id="up-to-35" style="--i:8;">35</button>
+        <button id="up-to-40" style="--i:9;">40</button>
+        <button id="up-to-45" style="--i:10;">45</button>
+        <button id="up-to-50" style="--i:11;">50</button>
+        <button id="up-to-55" style="--i:12;">55</button>
+    </div>
     <div id="progress-container">
         <svg viewBox="0 0 200 200">
-            <circle cx="100" cy="100" r="90" stroke="#444444" stroke-width="10" fill="none"></circle>
-            <circle id="progress-bar" cx="100" cy="100" r="88.5" stroke="#4caf50" stroke-width="13" fill="none"
-                stroke-linecap="round" stroke-dasharray="565" stroke-dashoffset="564"
+            <circle cx="100" cy="100" r="90" stroke="#444444" stroke-width="10" fill="#151515"></circle>
+            <circle id="progress-bar" cx="100" cy="100" r="88.5" stroke="#4caf50" fill="none" stroke-linecap="round"
+                stroke-dasharray="565" stroke-dashoffset="564"
                 style="transform: rotate(-90deg); transform-origin: center;">
             </circle>
         </svg>
@@ -101,7 +173,7 @@
     </div>
     <img id="qr-code" src="" alt="QR Code">
     <button id="toggle-fullscreen" onclick="toggleFullScreen()">Toggle FullScreen</button>
-    <div id="start-button">
+    <div id="start-buttons">
         <button onclick="startTimer(10)">10 Sec.</button>
         <button onclick="startTimer(60)">1 Min.</button>
         <button onclick="startTimer(180)">3 Min.</button>
@@ -110,7 +182,7 @@
         <button onclick="startTimer(1800)">15 Min.</button>
         <button onclick="startTimer(3600)">30 Min.</button>
     </div>
-    <button id="stop-button" onclick="stopTimer()" style="display: none;">Stop Timer</button>
+    <button id="stop-button" onclick="stopTimer()">Stop Timer</button>
 </body>
 
 </html>
