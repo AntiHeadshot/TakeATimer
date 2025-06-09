@@ -3,16 +3,19 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="apple-mobile-web-app-title" content="TakeATimer">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
     <script type="module" src="script.js"></script>
-    <title>Timer App</title>
+    <title>Take A Timer</title>
     <style>
         html,
         body {
             height: 100%;
-            min-height: 100vh;
-            width: 100vw;
+            min-height: 100cqh;
+            width: 100cqw;
             margin: 0;
             padding: 0;
             overflow: hidden;
@@ -24,8 +27,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            width: 100vw;
+            height: 100cqh;
+            width: 100cqw;
             background-color: #121212;
             color: #ffffff;
             box-sizing: border-box;
@@ -163,8 +166,8 @@
         }
 
         #clockContainer {
-            width: 60vw;
-            height: 100vh;
+            width: 60cqw;
+            height: 100cqh;
             position: absolute;
             top: 0;
             left: 0;
@@ -172,17 +175,17 @@
         }
 
         .setup #clockContainer {
-            width: 100vw;
-            height: 100vh;
+            width: 100cqw;
+            height: 100cqh;
         }
 
         #qr-code-container {
             position: absolute;
             display: block;
             right: 0;
-            bottom: 53px;
-            width: 40vw;
-            height: calc(100vh - 52px);
+            top: 0;
+            width: 40cqw;
+            height: calc(100cqh - 52px);
             opacity: 1;
             transition: opacity .1s .5s ease-in-out;
             pointer-events: none;
@@ -203,6 +206,7 @@
             width: max(28cqw, 28cqh);
             margin: auto;
             display: block;
+            filter: invert(0.93);
         }
 
         #pointer {
@@ -220,13 +224,14 @@
             }
 
             #clockContainer {
-                width: 100vw;
-                height: 60vh;
+                width: 100cqw;
+                height: 60cqh;
             }
 
             #qr-code-container {
-                width: 100vw;
-                height: 40vh;
+                width: 100cqw;
+                height: calc(40cqh - 52px);
+                top: 60cqh;
             }
 
             #timer,
@@ -262,15 +267,16 @@
             <svg viewBox="0 0 200 200">
                 <defs>
                     <radialGradient id="border-gradient" cx="50%" cy="50%" r="55%">
-                        <stop offset="89%" stop-color="#151515" stop-opacity="1"/>
-                        <stop offset="100%" stop-color="#444444" stop-opacity="1"/>
+                        <stop offset="89%" stop-color="#151515" stop-opacity="1" />
+                        <stop offset="100%" stop-color="#444444" stop-opacity="1" />
                     </radialGradient>
                 </defs>
-                <circle cx="100" cy="100" r="90" stroke="url(#border-gradient)" stroke-width="10" fill="#151515"></circle>
-                <circle id="pointer" cx="100" cy="100" r="63" stroke="" fill="none"
-                    stroke-width="40"
-                    style="transform: rotate(0deg); transform-origin: center;">
+                <circle cx="100" cy="100" r="90" stroke="url(#border-gradient)" stroke-width="10" fill="#151515">
                 </circle>
+                <line id="pointer" x1="100" y1="40" x2="100" y2="20" stroke="gray" stroke-width="3"
+                    stroke-linecap="round" id="line" style="transform: rotate(0deg); transform-origin: center;"></line>
+                <line id="hpointer" x1="100" y1="45" x2="100" y2="40" stroke="#3e3e3e" stroke-width="3"
+                    stroke-linecap="round" id="line" style="transform: rotate(0deg); transform-origin: center;"></line>
                 <circle id="progress-bar" cx="100" cy="100" r="88.5" stroke="#4caf50" fill="none" stroke-linecap="round"
                     stroke-dasharray="565" stroke-dashoffset="564"
                     style="transform: rotate(-90deg); transform-origin: center;">

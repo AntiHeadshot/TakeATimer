@@ -5,7 +5,7 @@ let duration = 300; // Default duration in seconds
 let endDate;
 let isTimerRunning = false;
 
-let stopText, startButton, stopButton, timerElement, qrCodeElement, progressBarElement, endElement;
+let stopText, startButton, stopButton, timerElement, qrCodeElement, progressBarElement, endElement,hpointer, pinter;
 
 function initializeElements() {
     stopText = document.getElementById('stop-button');
@@ -15,6 +15,8 @@ function initializeElements() {
     qrCodeElement = document.getElementById('qr-code');
     progressBarElement = document.getElementById('progress-bar');
     endElement = document.getElementById('end');
+    hpointer = document.getElementById('hpointer');
+    pinter = document.getElementById('pinter');
 
     updateTimeButtons();
 }
@@ -134,7 +136,11 @@ function updateTimer() {
         if (isTimerRunning)
             timerElement.textContent = formatTime(timeLeft);
         else {
-            timerElement.textContent = new Date().toLocaleTimeString('en-US', {
+            let date = new Date();
+            pointer.style.transform = `rotate(${(date.getMinutes() / 60) * 360}deg)`;
+            hpointer.style.transform = `rotate(${(date.getHours() / 12) * 360}deg)`;
+
+            timerElement.textContent = date.toLocaleTimeString('en-US', {
                 hour: 'numeric',
                 minute: '2-digit',
                 hour12: false,
