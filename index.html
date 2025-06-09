@@ -8,6 +8,16 @@
     <script type="module" src="script.js"></script>
     <title>Timer App</title>
     <style>
+        html,
+        body {
+            height: 100%;
+            min-height: 100vh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -15,22 +25,32 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            margin: 0;
+            width: 100vw;
             background-color: #121212;
             color: #ffffff;
+            box-sizing: border-box;
         }
 
         #progress-container {
             position: absolute;
-            width: 60vmin;
-            height: 60vmin;
-            margin-bottom: 20px;
+            width: 100%;
+            height: 100%;
+            left: 0px;
             pointer-events: none;
+            transition: width 0.5s ease-in-out, left 0.5s ease-in-out;
+        }
+
+        .setup #progress-container {
+            height: 80%;
+            top: 10%;
         }
 
         #progress-container svg {
-            width: 100%;
-            height: 100%;
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
         }
 
         #timer,
@@ -39,27 +59,14 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 7vmin;
+            font-size: 14cqmin;
             text-align: center;
+            transition: font-size 0.5s ease-in-out;
         }
 
         #end {
-            top: 75%;
-        }
-
-        #timer {
-            font-size: 16vmin;
-        }
-
-        #qr-code {
-            position: absolute;
-            bottom: 110px;
-            display: block;
-            margin-bottom: 20px;
-        }
-
-        .setup #qr-code {
-            display: none;
+            font-size: 8cqmin;
+            transform: translate(-50%, 75%);
         }
 
         button {
@@ -85,12 +92,20 @@
         #start-buttons {
             position: absolute;
             bottom: 40px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .setup #start-buttons {
+            pointer-events: auto;
+            opacity: 1;
         }
 
         #start-buttons-up-to {
             position: absolute;
-            width: 60vmin;
-            height: 60vmin;
+            width: 100%;
+            height: 100%;
             margin-bottom: 20px;
         }
 
@@ -105,10 +120,12 @@
             height: 8vmin;
             font-size: 2.5vmin;
             padding: 0;
+            pointer-events: none;
         }
 
         .setup #start-buttons-up-to button {
             transform: translate(-50%, -50%) rotate(calc(var(--currentDeg) + var(--deg))) translate(0, -35vmin) rotate(calc(-1 * var(--currentDeg) - var(--deg)));
+            pointer-events: auto;
         }
 
         #start-buttons-up-to button {
@@ -120,59 +137,149 @@
             position: absolute;
             bottom: 10px;
             left: 10px;
+            opacity: 1;
+            pointer-events: auto;
+            transition: opacity 0.5s ease-in-out;
         }
 
         .setup #stop-button {
-            display: none;
+            opacity: 0;
+            pointer-events: none;
         }
 
         #progress-bar {
             stroke-width: 13px;
-            transition: stroke-width 0.5s ease-in-out
-            ,r 0.5s ease-in-out
-            ,stroke 0.5s ease-in-out;
+            transition: stroke-width 0.5s ease-in-out, r 0.5s ease-in-out, stroke 0.5s ease-in-out;
         }
 
         .setup #progress-bar {
             stroke: gray;
             stroke-width: 10px;
             r: 90px;
-        } 
-        
+        }
+
         .setup #end {
             display: none;
+        }
+
+        #clockContainer {
+            width: 60vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: width 0.5s ease-in-out, height 0.5s ease-in-out;
+        }
+
+        .setup #clockContainer {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #qr-code-container {
+            position: absolute;
+            display: block;
+            right: 0;
+            bottom: 53px;
+            width: 40vw;
+            height: calc(100vh - 52px);
+            opacity: 1;
+            transition: opacity .1s .5s ease-in-out;
+            pointer-events: none;
+        }
+
+        .setup #qr-code-container {
+            opacity: 0;
+            transition: opacity .1s ease-in-out;
+        }
+
+        #qr-code-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #qr-code {
+            width: max(28cqw, 28cqh);
+            margin: auto;
+            display: block;
+        }
+
+        #pointer {
+            opacity: 0;
+        }
+
+        .setup #pointer {
+            opacity: 1;
+        }
+
+        @media (orientation: portrait) {
+            .setup #progress-container {
+                width: 80%;
+                left: 10%;
+            }
+
+            #clockContainer {
+                width: 100vw;
+                height: 60vh;
+            }
+
+            #qr-code-container {
+                width: 100vw;
+                height: 40vh;
+            }
+
+            #timer,
+            #end {
+                font-size: 12cqmin;
+            }
+
+            #end {
+                font-size: 6.5cqmin;
+                transform: translate(-50%, 75%);
+            }
         }
     </style>
 </head>
 
 <body class="setup">
-    <div id="start-buttons-up-to">
-        <button id="up-to-0" style="--i:1;">0</button>
-        <button id="up-to-5" style="--i:2;">5</button>
-        <button id="up-to-10" style="--i:3;">10</button>
-        <button id="up-to-15" style="--i:4;">15</button>
-        <button id="up-to-20" style="--i:5;">20</button>
-        <button id="up-to-25" style="--i:6;">25</button>
-        <button id="up-to-30" style="--i:7;">30</button>
-        <button id="up-to-35" style="--i:8;">35</button>
-        <button id="up-to-40" style="--i:9;">40</button>
-        <button id="up-to-45" style="--i:10;">45</button>
-        <button id="up-to-50" style="--i:11;">50</button>
-        <button id="up-to-55" style="--i:12;">55</button>
+    <div id="clockContainer">
+        <div id="start-buttons-up-to">
+            <button id="up-to-0" style="--i:1;">0</button>
+            <button id="up-to-5" style="--i:2;">5</button>
+            <button id="up-to-10" style="--i:3;">10</button>
+            <button id="up-to-15" style="--i:4;">15</button>
+            <button id="up-to-20" style="--i:5;">20</button>
+            <button id="up-to-25" style="--i:6;">25</button>
+            <button id="up-to-30" style="--i:7;">30</button>
+            <button id="up-to-35" style="--i:8;">35</button>
+            <button id="up-to-40" style="--i:9;">40</button>
+            <button id="up-to-45" style="--i:10;">45</button>
+            <button id="up-to-50" style="--i:11;">50</button>
+            <button id="up-to-55" style="--i:12;">55</button>
+        </div>
+        <div id="progress-container">
+            <svg viewBox="0 0 200 200">
+                <defs>
+                    <radialGradient id="border-gradient" cx="50%" cy="50%" r="55%">
+                        <stop offset="89%" stop-color="#151515" stop-opacity="1"/>
+                        <stop offset="100%" stop-color="#444444" stop-opacity="1"/>
+                    </radialGradient>
+                </defs>
+                <circle cx="100" cy="100" r="90" stroke="url(#border-gradient)" stroke-width="10" fill="#151515"></circle>
+                <circle id="pointer" cx="100" cy="100" r="63" stroke="" fill="none"
+                    stroke-width="40"
+                    style="transform: rotate(0deg); transform-origin: center;">
+                </circle>
+                <circle id="progress-bar" cx="100" cy="100" r="88.5" stroke="#4caf50" fill="none" stroke-linecap="round"
+                    stroke-dasharray="565" stroke-dashoffset="564"
+                    style="transform: rotate(-90deg); transform-origin: center;">
+                </circle>
+            </svg>
+            <div id="timer">00:00</div>
+            <div id="end">00:00</div>
+        </div>
     </div>
-    <div id="progress-container">
-        <svg viewBox="0 0 200 200">
-            <circle cx="100" cy="100" r="90" stroke="#444444" stroke-width="10" fill="#151515"></circle>
-            <circle id="progress-bar" cx="100" cy="100" r="88.5" stroke="#4caf50" fill="none" stroke-linecap="round"
-                stroke-dasharray="565" stroke-dashoffset="564"
-                style="transform: rotate(-90deg); transform-origin: center;">
-            </circle>
-        </svg>
-        <div id="timer">00:00</div>
-        <div id="end">00:00</div>
-    </div>
-    <img id="qr-code" src="" alt="QR Code">
-    <button id="toggle-fullscreen" onclick="toggleFullScreen()">Toggle FullScreen</button>
     <div id="start-buttons">
         <button onclick="startTimer(10)">10 Sec.</button>
         <button onclick="startTimer(60)">1 Min.</button>
@@ -182,6 +289,10 @@
         <button onclick="startTimer(1800)">15 Min.</button>
         <button onclick="startTimer(3600)">30 Min.</button>
     </div>
+    <div id="qr-code-container">
+        <img id="qr-code" src="" alt="QR Code">
+    </div>
+    <button id="toggle-fullscreen" onclick="toggleFullScreen()">Toggle FullScreen</button>
     <button id="stop-button" onclick="stopTimer()">Stop Timer</button>
 </body>
 
