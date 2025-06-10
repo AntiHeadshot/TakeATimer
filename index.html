@@ -156,7 +156,7 @@
         }
 
         .setup #progress-bar {
-            stroke: gray;
+            stroke: url(#progress-gradient);
             stroke-width: 10px;
             r: 90px;
         }
@@ -207,6 +207,7 @@
             margin: auto;
             display: block;
             filter: invert(0.93);
+            image-rendering: pixelated;
         }
 
         #pointer,
@@ -272,6 +273,15 @@
                         <stop offset="89%" stop-color="#151515" stop-opacity="1" />
                         <stop offset="100%" stop-color="#444444" stop-opacity="1" />
                     </radialGradient>
+                    <radialGradient id="progress-gradient" cx="50%" cy="50%" r="50%">
+                        <stop offset="89%" stop-color="#444444" stop-opacity="1" />
+                        <stop offset="100%" stop-color="#151515" stop-opacity="0" />
+                    </radialGradient>
+                    <radialGradient id="progress-gradient2" cx="50%" cy="50%" r="56%">
+                        <stop offset="83%" stop-color="#4cef50" stop-opacity="1" />
+                        <stop offset="91%" stop-color="#4caf50" stop-opacity="1" />
+                        <stop offset="100%" stop-color="#151515" stop-opacity="1" />
+                    </radialGradient>
                 </defs>
                 <circle cx="100" cy="100" r="90" stroke="url(#border-gradient)" stroke-width="10" fill="#151515">
                 </circle>
@@ -279,8 +289,8 @@
                     stroke-linecap="round" id="line" style="transform: rotate(0deg); transform-origin: center;"></line>
                 <line id="hpointer" x1="100" y1="45" x2="100" y2="40" stroke="#3e3e3e" stroke-width="3"
                     stroke-linecap="round" id="line" style="transform: rotate(0deg); transform-origin: center;"></line>
-                <circle id="progress-bar" cx="100" cy="100" r="88.5" stroke="#4caf50" fill="none" stroke-linecap="round"
-                    stroke-dasharray="565" stroke-dashoffset="564"
+                <circle id="progress-bar" cx="100" cy="100" r="88.5" stroke="url(#progress-gradient2)" fill="none" stroke-linecap="round"
+                    stroke-dasharray="565" stroke-dashoffset="565"
                     style="transform: rotate(-90deg); transform-origin: center;">
                 </circle>
             </svg>
@@ -289,7 +299,6 @@
         </div>
     </div>
     <div id="start-buttons">
-        <button onclick="startTimer(10)">10 Sec.</button>
         <button onclick="startTimer(60)">1 Min.</button>
         <button onclick="startTimer(180)">3 Min.</button>
         <button onclick="startTimer(300)">5 Min.</button>
