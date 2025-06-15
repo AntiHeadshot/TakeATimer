@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="TakeATimer">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
     <script type="module" src="script.js"></script>
@@ -247,6 +247,19 @@
                 transform: translate(-50%, 75%);
             }
         }
+
+        .finished {
+            animation: flashGreen 1.5s ease-in-out;
+        }
+
+        @keyframes flashGreen {
+            0%, 100% {
+                background-color: #121212;
+            }
+            50% {
+                background-color: #4caf50;
+            }
+        }
     </style>
 </head>
 
@@ -299,6 +312,7 @@
         </div>
     </div>
     <div id="start-buttons">
+        <button onclick="startTimer(10)">10 Sec.</button>
         <button onclick="startTimer(60)">1 Min.</button>
         <button onclick="startTimer(180)">3 Min.</button>
         <button onclick="startTimer(300)">5 Min.</button>

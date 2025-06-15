@@ -5,6 +5,7 @@ let duration = 300; // Default duration in seconds
 let endDate;
 let isTimerRunning = false;
 
+let audio;
 let stopText, startButton, stopButton, timerElement, qrCodeElement, progressBarElement, endElement, hpointer, pinter;
 
 function initializeElements() {
@@ -92,15 +93,6 @@ window.startTimer = function startTimer(durationInSeconds, targetEnd) {
     endDate = targetEnd ?? (Date.now() + durationInSeconds * 1000)
     duration = durationInSeconds ?? (endDate - Date.now()) / 1000;
 
-    console.log(`Starting timer for ${duration} seconds, ending at ${new Date(endDate).toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-    })}`);
-    console.log(`Target end time: ${targetEnd}`);
-    console.log(`endDate: ${endDate}`);
-
     endElement.textContent = new Date(endDate).toLocaleTimeString('en-US', {
         hour: 'numeric',
         minute: '2-digit',
@@ -117,6 +109,7 @@ window.startTimer = function startTimer(durationInSeconds, targetEnd) {
 };
 
 let lastCurrentTime = 0;
+let lastTimeLeft = -1;
 function updateTimer() {
     let currentTime = Date.now() / 1000;
     let plsUpdate = false;
@@ -126,6 +119,13 @@ function updateTimer() {
     }
 
     let timeLeft = endDate - currentTime;
+    if (isTimerRunning && timeLeft < 0 && lastTimeLeft >= 0) {
+        audio.currentTime = 0;
+        audio.play();
+        document.body.classList.add('finished');
+        console.log("Timer finished, playing sound");
+    }
+    lastTimeLeft = timeLeft;
 
     if (isTimerRunning) {
         progressBarElement.style.strokeDashoffset = Math.max(0, 565 - (timeLeft / duration) * 565);
@@ -162,7 +162,7 @@ function updateTimer() {
 function formatTime(seconds) {
     const isNegative = seconds < 0;
     const minutes = isNegative ? -Math.ceil(seconds / 60) : Math.floor(seconds / 60);
-    const remainingSeconds = isNegative ? -Math.ceil(seconds % 60) : Math.floor(seconds % 60);
+    const remainingSeconds = isNegative ? -Math.ceil(seconds % 60) : Math.ceil(seconds % 60);
 
     return `${isNegative ? '-' : ''}${minutes}:${String(remainingSeconds).padStart(2, '0')}`;
 }
@@ -170,6 +170,8 @@ function formatTime(seconds) {
 window.stopTimer = function stopTimer() {
     window.history.replaceState(null, '', window.location.pathname);
     lastTime = -1;
+    audio.pause();
+    document.body.classList.remove('finished');
     updateTimeButtons();
     setTimerState(false);
 };
@@ -202,5 +204,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeElements();
     parseUrlParameters();
 
+    audio = new Audio('singing-bowl-gong-69238.mp3');
+
     timerInterval = setInterval(updateTimer, 10);
 });
+
+window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+    stopButton.textContent = "Error: " + errorMsg;
+    return false;
+}
