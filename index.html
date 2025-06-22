@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="darkreader-lock">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="TakeATimer">
@@ -265,42 +266,13 @@
             }
         }
 
-        #progress-gradient2-stop1,
-        #progress-gradient2-stop2 {
-            transition: stop-color 1s ease-in-out;
-        }
-
         .finished #progress-gradient2-stop1 {
-            animation: turnRed1 1s ease-in-out;
-            animation-fill-mode: forwards;
+            stop-color: #ff4c4c;
             
         }
 
         .finished #progress-gradient2-stop2 {
-            animation: turnRed2 1s ease-in-out;
-            animation-fill-mode: forwards;
-        }
-
-        @keyframes turnRed1 {
-
-            100% {
-                stop-color: #ff4c4c;
-            }
-
-            50% {
-                stop-color: #ffe23b;
-            }
-        }
-
-        @keyframes turnRed2 {
-
-            100% {
-                stop-color: #ff0000;
-            }
-
-            50% {
-                stop-color: #ffcc00;
-            }
+            stop-color: #ff0000;
         }
     </style>
 </head>

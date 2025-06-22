@@ -113,7 +113,7 @@ let lastTimeLeft = -1;
 function updateTimer() {
     let currentTime = Date.now() / 1000;
     let plsUpdate = false;
-    if (currentTime - lastCurrentTime > 0.5) {
+    if (currentTime - lastCurrentTime > 0.1) {
         lastCurrentTime = currentTime;
         plsUpdate = true;
     }
@@ -127,7 +127,10 @@ function updateTimer() {
     lastTimeLeft = timeLeft;
 
     if (isTimerRunning) {
-        progressBarElement.style.strokeDashoffset = Math.max(0, 565 - (timeLeft / duration) * 565);
+        if (timeLeft > -duration)
+            progressBarElement.style.strokeDashoffset = Math.max(0, 565 - (timeLeft / duration) * 565);
+        else
+            progressBarElement.style.strokeDashoffset = 1130;
     }
     else {
         progressBarElement.style.strokeDashoffset = Math.max(0, (timeLeft / duration) * 565);
@@ -206,6 +209,8 @@ document.addEventListener('DOMContentLoaded', () => {
     parseUrlParameters();
 
     audio = new Audio('singing-bowl-gong-69238.mp3');
+    audio.play();
+    audio.pause();
 
     timerInterval = setInterval(updateTimer, 10);
 });
