@@ -123,7 +123,6 @@ function updateTimer() {
         audio.currentTime = 0;
         audio.play();
         document.body.classList.add('finished');
-        console.log("Timer finished, playing sound");
     }
     lastTimeLeft = timeLeft;
 
@@ -195,6 +194,8 @@ function parseUrlParameters() {
         const end = parseInt(endtime, 10);
 
         if (!isNaN(durationInSeconds) && durationInSeconds > 0) {
+            if ((end - Date.now()) < 0)
+                document.body.classList.add('finished');
             startTimer(durationInSeconds, end);
         }
     }
